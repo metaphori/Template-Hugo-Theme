@@ -50,4 +50,4 @@ jobs:
       - name: Remove Hugo Installer
         run: rm hugo.deb
       - name: Build slides with hugo
-        run: cd exampleSite; hugo -gc
+        run: cd exampleSite; hugo --gc
