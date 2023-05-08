@@ -99,7 +99,7 @@ func main() {
 
 If you don't need highlight.js at all, you can prevent it from loading.
 
-{{ highlight toml "style=github" }}
+{{< highlight toml "style=github" >}}
 
 # This works both in config.toml and a presentation's front
 # matter. Default plugins include highlight.js, so disable them
@@ -111,3 +111,5 @@ plugins = [
   "reveal-js/plugin/zoom-js/zoom.js",
   "reveal-js/plugin/notes/notes.js",
 ]
+
+{{< /highlight  >}}
