@@ -107,11 +107,9 @@ If you don't need highlight.js at all, you can prevent it from loading.
 
 [params.reveal_hugo]
 load_default_plugins = false
+plugins = [
+  "reveal-js/plugin/zoom-js/zoom.js",
+  "reveal-js/plugin/notes/notes.js",
+]
 
-[[params.reveal_hugo.plugins]]
-name = "RevealZoom"
-source = "reveal-js/plugin/zoom-js/zoom.js"
-
-[[params.reveal_hugo.plugins]]
-name = "RevealNotes"
-source = "reveal-js/plugin/notes/notes.js"
+{{< /highlight  >}}
