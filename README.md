@@ -55,6 +55,7 @@ Jump to the [exampleSite](exampleSite) folder in this repository to see the sour
 - [bundle-example](https://reveal-hugo.dzello.com/bundle-example/) - An example of creating a presentation from one or more markdown files in a leaf bundle
 - [hugo-hl-example](https://reveal-hugo.dzello.com/hugo-hl-example/) - An example of using Hugo's compile-time syntax highlighter
 - [highlightjs-linenumbers-example](https://reveal-hugo.dzello.com/highlightjs-linenumbers-example/) - An example of using the multiline and multi-step capabilities of highlight.js
+- [blank Reveal-Hugo template](https://github.com/jerdog/reveal-hugo-template) - A templated skeleton site to get started quickly
 
 ### Starter repository
 
@@ -100,7 +101,7 @@ hugo mod init github.com/me/my-presentation
 hugo mod get github.com/dzello/reveal-hugo
 ```
 
-Open `config.toml` and add the following line:
+Open `hugo.toml` and add the following line:
 
 ```toml
 theme = ["github.com/dzello/reveal-hugo"]
@@ -114,7 +115,7 @@ Add the `reveal-hugo` theme as a submodule in the themes directory:
 git submodule add git@github.com:dzello/reveal-hugo.git themes/reveal-hugo
 ```
 
-Open `config.toml` and add the following line:
+Open `hugo.toml` and add the following line:
 
 ```toml
 theme = ["reveal-hugo"]
@@ -122,7 +123,7 @@ theme = ["reveal-hugo"]
 
 ### Configure your presentation
 
-Add some more contents to your `config.toml`:
+Add some more contents to your `hugo.toml`:
 
 ```toml
 [markup.goldmark.renderer]
@@ -270,6 +271,7 @@ Here's a list of documented slide attributes from the Reveal.js docs:
 - `background-size`
 - `background-position`
 - `background-repeat`
+- `background-opacity` (Opacity is on a 0-1 scale, by decimal. 0=transparent, 1=opaque.)
 - `background-video`
 - `background-video-loop`
 - `background-video-muted`
@@ -280,6 +282,16 @@ Here's a list of documented slide attributes from the Reveal.js docs:
 - `transition-speed`
 - `notes` (can also use the note shortcode)
 - `timing`
+
+### Additional data attributes
+
+Check MDN for information about how these attributes work.
+
+- data-background-image - URL of the image to show. GIFs restart when the slide opens.
+- data-background-size
+- data-background-position
+- data-background-repeat
+- data-background-opacity
 
 You can also pass through your own, a `data-` prefix will be added automatically to each one (except for `id` and `class`).
 
@@ -322,38 +334,46 @@ Markdown surrounded by the markdown shortcode will not be rendered by Hugo but b
 {{% /markdown %}}
 ```
 
-### MathJax support
+### Maths and equations (via `MathJax`)
 
-Add the following to `layouts/partials/reveal-hugo/body.html`:
+### Option 1: `math` code block
 
+You can author your equation inside a `math` [code block](https://reveal-hugo.dzello.com/#/math-equations):
+
+````markdown
+```math
+\tag*{(1)} P(E) = {n \choose k} p^k (1-p)^{n-k}
 ```
-<script>
-MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']]
-  },
-  svg: {
-    fontCache: 'global'
-  }
-};
-</script>
+````
 
-<script type="text/javascript" id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-</script>
+Use of the code block will automatically activate needed `MathJax` script for equation display.
+
+If you want to use inline equations (like $E=mc^2$) wrap your math content in two single-\$:
+
+```markdown
+Albert Einstein's famous formula: $E=mc^2$
 ```
 
-Then you can do this in a slide:
+If you want to use inline equations and no `math` code block for auto activation is present in your slides, you need to manually enable `MathJax` by setting the parameter `math` to `true` in your page frontmatter.
 
+### Option 2: `math` shortcode
+
+Alternatively, you can author your equation inside a `math` [shortcode](https://reveal-hugo.dzello.com/#/math-shortcode):
+
+```markdown
+{{< math >}}
+\tag*{(1)} \frac{n!}{k!(n-k)!} = \binom{n}{k}
+{{< /math >}}
 ```
-## Cool equations
 
-Displayed equations are wrapped in double-\$
+Use of the shortcode will automatically activate needed `MathJax` script for equation display.
 
-$$\frac{n!}{k!(n-k)!} = \binom{n}{k}$$
+For inline equations (like $E=mc^2$) use the self closing form of the `math` shortcode:
 
-Inline equations like $E=mc^2$ are wrapped in single-\$
+```markdown
+Albert Einstein's famous formula: {{< math "E=mc^2" />}}
 ```
+For the sake of brevity, the inline content can be given as unnamed first shortcode parameter, as in the code fragment above. In a more concise form, the math content can also be assigned to a named shortcode parameter `inline`: `{{< math inline="E=mc^2" />}}`.
 
 ### HTML slides
 
@@ -409,7 +429,7 @@ You can use all the additional slide shortcode attributes. They will be applied 
 
 ## Configuration
 
-Customize the Reveal.js presentation by setting these values in `config.toml` or the front matter of any presentation's `_index.md` file.
+Customize the Reveal.js presentation by setting these values in `hugo.toml` or the front matter of any presentation's `_index.md` file.
 
 - `reveal_hugo.theme`: The Reveal.js theme used; defaults to "black"
 - `reveal_hugo.custom_theme`: The path to a locally hosted Reveal.js theme in the static or assets folder
@@ -421,7 +441,7 @@ Customize the Reveal.js presentation by setting these values in `config.toml` or
 - `reveal_hugo.load_default_plugins`: If set to true (default), the plugins included by default are loaded. These are markdown, highlight.js, notes and zoom.
 - `reveal_hugo.plugins`: (see below) An array of additional Reveal.js plugins to load. The appropriate files will need to have been copied into the `static` or content directory. See here for a [big list of plugins](https://github.com/hakimel/reveal.js/wiki/Plugins,-Tools-and-Hardware) you can try. The original implementation used to accept an array of javascript files (e.g. `["plugin/gallery/gallery.plugin.js"]`), but now reveal-hugo can fully load plugin javascript and css. To enable this mode, You need to provide an array of plugin definition objects with `name`, `source` and an optional `css`, `verbatim` and `order` fields. Reveal-hugo will try to load the plugins at the path specified by `source`. If `verbatim=true` is used, the path is tried as-is. Otherwise, the path is resolved from the content dir or `static` dir. Finally, the `reveal_cdn` is prepended to the path if no other conditions are satisfied. The `order` field controls the order of javascript loading and will seldomly used. See [plugin-example](https://reveal-hugo.dzello.com/plugin-example/) for a plugin walkthrough.
 
-This is how parameters will look in your `config.toml`:
+This is how parameters will look in your `hugo.toml`:
 
 ```TOML
 [params.reveal_hugo]
@@ -473,7 +493,7 @@ To do highlighting with Hugo, use the [highlight shortcode](https://gohugo.io/co
 
 To see an example of highlighting with Reveal.js, check out the [highlightjs-linenumbers-example](https://reveal-hugo.dzello.com/highlightjs-linenumbers-example/) presentation.
 
-By default, markdown code fences will be processed with Hugo. To turn that off, add this to your `config.toml` file:
+By default, markdown code fences will be processed with Hugo. To turn that off, add this to your `hugo.toml` file:
 
 ``` toml
 [markup.highlight]
@@ -492,7 +512,7 @@ If you have a custom reveal theme to use (in .css form), place it in the `static
     - custom-theme.css
 ```
 
-Then this is what you'll put in `config.toml`:
+Then this is what you'll put in `hugo.toml`:
 
 ```toml
 [params.reveal_hugo]
@@ -565,7 +585,7 @@ This is the recommended way to add custom CSS and JavaScript to each presentatio
 
 ## Offline development
 
-Offline-friendly development is the default. The Reveal.js and Highlight.js files are loaded from the static directory by default. (See above for how to use a CDN instead). If you need `file:///` URLs to work, make sure to set `relativeURLs` and `uglyURLs` in your `config.toml`.
+Offline-friendly development is the default. The Reveal.js and Highlight.js files are loaded from the static directory by default. (See above for how to use a CDN instead). If you need `file:///` URLs to work, make sure to set `relativeURLs` and `uglyURLs` in your `hugo.toml`.
 
 ```toml
 relativeURLs = true
@@ -597,7 +617,7 @@ hugo mod init github.com/me/my-presentation
 hugo mod get github.com/dzello/reveal-hugo
 ```
 
-Open `config.toml`, look for the line `theme = ...` and add `reveal-hugo` to your site's array of themes :
+Open `hugo.toml`, look for the line `theme = ...` and add `reveal-hugo` to your site's array of themes :
 
 ```toml
 theme = ["your-current-theme", "github.com/dzello/reveal-hugo"]
@@ -611,7 +631,7 @@ Add the `reveal-hugo` theme as a submodule in the themes directory:
 git submodule add git@github.com:dzello/reveal-hugo.git themes/reveal-hugo
 ```
 
-Open `config.toml`, look for the line `theme = ...` and add `reveal-hugo` to your site's array of themes :
+Open `hugo.toml`, look for the line `theme = ...` and add `reveal-hugo` to your site's array of themes :
 
 ```toml
 theme = ["your-current-theme", "reveal-hugo"]
@@ -632,7 +652,7 @@ Files and directories are named such that they shouldn't conflict with your exis
 
 ### Configure your site for presentations
 
-Next, add the Reveal output format to your site's `config.toml` file
+Next, add the Reveal output format to your site's `hugo.toml` file
 
 ```toml
 [outputFormats.Reveal]
